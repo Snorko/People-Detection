@@ -9,6 +9,12 @@ xvalues = list()
 motion = list()
 count1 = 0
 count2 = 0
+counter = 0
+
+def save_img(frame,counter):
+    cv2.imwrite('frame ' + str(counter) + '.jpg', frame)
+    print('Captured frame num ' + str(counter))
+
 
 
 def find_majority(k):
@@ -38,27 +44,32 @@ while 1:
     if avg is None:
         print("[INFO] starting background model...")
         avg = gray.copy().astype("float")
-        #print(avg)
+        # print(avg)
         continue
 
     cv2.accumulateWeighted(gray, avg, 0.5)
     frameDelta = cv2.absdiff(gray, cv2.convertScaleAbs(avg))
     thresh = cv2.threshold(frameDelta, 5, 255, cv2.THRESH_BINARY)[1]
-    #thresh2 = cv2.adaptiveThreshold(frameDelta, 255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,11,2)
+    # thresh2 = cv2.adaptiveThreshold(frameDelta, 255,cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY,11,2)
     thresh = cv2.dilate(thresh, None, iterations=2)
-    #thresh2 = cv2.dilate(thresh2, None, iterations=2)
+    # thresh2 = cv2.dilate(thresh2, None, iterations=2)
     contours, hierarchy = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
+
     for c in contours:
-        #print(cv2.contourArea(c))
+
+        # print(cv2.contourArea(c))
         if cv2.contourArea(c) < 5000:
             continue
+
+        #counter = counter+1
+        #save_img(frame, counter)
+
+
         (x, y, w, h) = cv2.boundingRect(c)
         xvalues.append(x)
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 0, 255), 2)
         flag = False
-
-
 
     no_x = len(xvalues)
 
@@ -87,8 +98,8 @@ while 1:
     cv2.imshow("Frame", frame)
     cv2.imshow("Gray", gray)
     cv2.imshow("FrameDelta", frameDelta)
-    #cv2.imshow("tresh", thresh)
-    #cv2.imshow("tresh2", thresh2)
+    # cv2.imshow("tresh", thresh)
+    # cv2.imshow("tresh2", thresh2)
 
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
